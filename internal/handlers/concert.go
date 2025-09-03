@@ -6,6 +6,20 @@ import (
 	"gorm.io/gorm"
 )
 
+func GetConcertsAll(ctx fiber.Ctx, db *gorm.DB) error {
+	var concerts []model.Concert
+
+	result := db.Find(&concerts)
+	if result.Error != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Concert not found",
+		})
+	}
+
+	ctx.JSON(concerts)
+
+	return ctx.Status(fiber.StatusOK).JSON(concerts)
+}
 func GetConcert(ctx fiber.Ctx, db *gorm.DB) error {
 	var (
 		concert model.Concert

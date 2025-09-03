@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/healthcheck"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -24,11 +25,13 @@ func main() {
 	app := fiber.New()
 	db := setUpDatabase(host, port, user, password, dbname)
 
-	app.Get("/health", func(c fiber.Ctx) error {
-		return c.SendString("OK")
+	app.Get(healthcheck.LivenessEndpoint, healthcheck.New())
+
+	app.Get("/concerts", func(c fiber.Ctx) error {
+		return handlers.GetConcertsAll(c, db)
 	})
 
-	app.Get("concerts/:id", func(c fiber.Ctx) error {
+	app.Get("/concerts/:id", func(c fiber.Ctx) error {
 		return handlers.GetConcert(c, db)
 	})
 
