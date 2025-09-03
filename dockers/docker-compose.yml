@@ -1,0 +1,20 @@
+version: "3.8"
+
+name: sa-rest-example
+
+volumes:
+  postgres_data:
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_DB: restdb
+      POSTGRES_USER: restdb
+      POSTGRES_PASSWORD: restdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped

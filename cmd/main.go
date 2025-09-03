@@ -1,25 +1,63 @@
 package main
 
-import "github.com/gofiber/fiber/v3"
+import (
+	"fmt"
+	"log"
+
+	"github.com/gofiber/fiber/v3"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"github.com/ChanatpakornS/sa-REST-example/internal/handlers"
+	model "github.com/ChanatpakornS/sa-REST-example/internal/models"
+)
+
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "restdb"
+	password = "restdb"
+	dbname   = "restdb"
+)
 
 func main() {
 	app := fiber.New()
+	db := setUpDatabase(host, port, user, password, dbname)
 
-	app.Get("/", func(c fiber.Ctx) error {
-		return c.SendString("Hello, GET!")
+	app.Get("/health", func(c fiber.Ctx) error {
+		return c.SendString("OK")
 	})
 
-	app.Post("/", func(c fiber.Ctx) error {
-		return c.SendString("Hello, POST!")
+	app.Get("concerts/:id", func(c fiber.Ctx) error {
+		return handlers.GetConcert(c, db)
 	})
 
-	app.Put("/", func(c fiber.Ctx) error {
-		return c.SendString("Hello, PUT!")
+	app.Post("/concerts", func(c fiber.Ctx) error {
+		return handlers.CreateConcert(c, db)
 	})
 
-	app.Delete("/", func(c fiber.Ctx) error {
-		return c.SendString("Hello, DELETE!")
+	app.Put("/concerts/:id", func(c fiber.Ctx) error {
+		return handlers.UpdateConcert(c, db)
 	})
 
-	app.Listen(":3000")
+	app.Delete("/concerts/:id", func(c fiber.Ctx) error {
+		return handlers.DeleteConcert(c, db)
+	})
+
+	log.Fatal(app.Listen(":3000"))
+}
+
+func setUpDatabase(host string, port int32, user string, password string, dbname string) *gorm.DB {
+	dsn := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+
+	db, err := gorm.Open(postgres.Open(dsn))
+	if err != nil {
+		panic("failed to connect to database")
+	}
+
+	db.AutoMigrate(&model.Concert{})
+
+	return db
 }
