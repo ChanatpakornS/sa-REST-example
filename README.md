@@ -10,7 +10,7 @@
 - Price (float64)
 
 ### Endpoints
-- `GET /health`: check health
+- `GET /livez`: check health
 - `GET /concerts`: Get all concerts
 - `GET /concerts/:id`: Get a specific concert by ID
 - `POST /concerts`: Create a new concert
